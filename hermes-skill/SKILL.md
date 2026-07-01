@@ -1,103 +1,98 @@
 ---
 name: minecraft-use
-description: AI agent for Minecraft — connect any LLM to any Minecraft server via game chat, MCP, or programmatic API
+description: All-in-one AI agent for Minecraft — server setup, plugin testing, gameplay, building, mining. Control via API, game chat, or MCP.
 version: 0.0.1-beta.1
 category: minecraft
-tags: [minecraft, ai, llm, agent, bot, mineflayer, mcp]
+tags: [minecraft, ai, llm, agent, bot, mineflayer, mcp, server, plugin-testing, api]
 ---
 
 # minecraft-use
 
-AI agent for Minecraft — connect any LLM to any Minecraft server.
-
-## When to use
-
-- Controlling a Minecraft bot via game chat or programmatic API
-- Automating Minecraft tasks (mining, building, crafting)
-- Testing Minecraft plugins automatically
-- Setting up and managing Minecraft servers
-- Connecting Claude Desktop / Hermes to Minecraft
-
-## Installation
-
-```bash
-cd /root/projects/minecraft-use && npm install
-```
+All-in-one AI agent for Minecraft. Server setup, plugin testing, gameplay, building, mining — everything.
 
 ## Quick Start
 
 ```bash
-# Start the agent
 cd /root/projects/minecraft-use
-node src/cli.js start --config config.yaml
-
-# Or as MCP server
-node src/cli.js mcp --port 8088
+npm install
+cp .env.example .env  # Set ANTHROPIC_API_KEY + MC_HOST
+node src/cli.js start --server localhost --port 25565
 ```
 
-## Game Chat Commands
+## API Base: http://localhost:8088
 
-Prefix: `!` (configurable in config.yaml)
-
-| Command | Description |
-|---------|-------------|
-| `!mine <block> [count]` | Mine a block type |
-| `!go <x> <y> <z>` | Move to coordinates |
-| `!goto <player>` | Go to a player |
-| `!equip <item>` | Equip an item |
-| `!attack [type]` | Attack a mob |
-| `!craft <item>` | Craft an item |
-| `!inv` | Show inventory |
-| `!health` | Show health/food |
-| `!cmd <command>` | Run server command |
-| `!help` | List all actions |
-
-## Natural Language
-
-Mention the bot name in chat:
-```
-Player: minecraft-use build me a house
-Player: minecraft-use find iron ore
-```
-
-## Programmatic API
-
-```javascript
-import { createAgent } from './src/index.js';
-
-const agent = await createAgent({
-  server: { host: 'localhost', port: 25565 },
-  llm: { provider: 'anthropic', model: 'claude-sonnet-4-20250514' },
-});
-
-await agent.start();
-await agent.mine('diamond_ore');
-await agent.go(100, 64, 200);
-await agent.stop();
-```
-
-## MCP Server
-
-Start the MCP server for Claude Desktop / Hermes integration:
-
+### Mine blocks
 ```bash
-node src/cli.js mcp --port 8088
+curl -X POST http://localhost:8088/action/mine -d '{"block":"diamond_ore","count":3}'
 ```
 
-Available MCP tools:
-- `minecraft_move` — Move to coordinates
-- `minecraft_mine` — Mine a block
-- `minecraft_chat` — Send chat message
-- `minecraft_execute` — Natural language task
-- `minecraft_command` — Run server command
-- `minecraft_state` — Get bot state
+### Build from description
+```bash
+curl -X POST http://localhost:8088/action/build -d '{"description":"a 10x10 cobblestone platform"}'
+```
 
-## Configuration
+### Natural language task
+```bash
+curl -X POST http://localhost:8088/action/execute -d '{"task":"find iron and bring it to spawn"}'
+```
 
-Edit `config.yaml` or set environment variables. See docs/configuration.md for full reference.
+### Server command
+```bash
+curl -X POST http://localhost:8088/action/cmd -d '{"command":"gamemode creative @a"}'
+```
 
-Key settings:
-- `server.host` — Minecraft server address
-- `llm.provider` — anthropic, openai, or ollama
-- `agent.prefix` — Chat command prefix (default: `!`)
-- `agent.context_budget` — Token budget per decision (default: 4096)
+### Get game state
+```bash
+curl http://localhost:8088/state/position
+curl http://localhost:8088/state/health
+curl http://localhost:8088/state/inventory
+curl http://localhost:8088/state/entities
+```
+
+### Server setup
+```bash
+curl -X POST http://localhost:8088/server/setup -d '{"version":"1.21.4","port":25565}'
+```
+
+### Plugin testing
+```bash
+# Quick test
+curl -X POST http://localhost:8088/action/cmd -d '{"command":"help"}'
+```
+
+### Memory
+```bash
+curl -X POST http://localhost:8088/memory/fact -d '{"key":"base","value":"100,64,200"}'
+curl http://localhost:8088/memory/fact/base
+```
+
+## Game Chat
+
+When bot is connected, use in-game chat:
+- `!mine diamond_ore 3` — Mine blocks
+- `!go 100 64 200` — Move to coords
+- `!goto Steve` — Go to player
+- `!equip iron_sword` — Equip item
+- `!attack zombie` — Attack mob
+- `!craft iron_pickaxe` — Craft item
+- `!build a house` — AI building
+- `!cmd gamemode creative` — Server command
+- `!inv` — Show inventory
+- `!health` — Show health
+- `!help` — List all actions
+
+## MCP (Claude Desktop)
+
+```json
+{"mcpServers":{"minecraft":{"url":"http://localhost:8088"}}}
+```
+
+Tools: `minecraft_go`, `minecraft_mine`, `minecraft_build`, `minecraft_chat`, `minecraft_execute`, `minecraft_command`, `minecraft_state`, `minecraft_inventory`
+
+## WebSocket
+
+Connect to `ws://localhost:8088` for real-time events.
+
+## Full docs
+
+https://github.com/kyssta-exe/minecraft-use
