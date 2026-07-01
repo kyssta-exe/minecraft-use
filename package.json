@@ -1,0 +1,41 @@
+{
+  "name": "minecraft-use",
+  "version": "0.0.1-beta.1",
+  "description": "AI agent for Minecraft — connect any LLM to any Minecraft server",
+  "main": "src/index.js",
+  "type": "module",
+  "bin": {
+    "minecraft-use": "src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/cli.js",
+    "mcp": "node src/mcp/server.js",
+    "test": "node --test tests/",
+    "docs:serve": "npx serve docs -p 8888"
+  },
+  "keywords": ["minecraft", "ai", "llm", "agent", "mineflayer", "claude", "openai", "automation", "bot", "mcp"],
+  "author": "Kyssta",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kyssta-exe/minecraft-use.git"
+  },
+  "dependencies": {
+    "mineflayer": "^4.37.0",
+    "mineflayer-pathfinder": "^2.4.5",
+    "mineflayer-collectblock": "^1.3.0",
+    "better-sqlite3": "^11.0.0",
+    "express": "^4.21.0",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.0",
+    "yaml": "^2.6.0"
+  },
+  "optionalDependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "openai": "^4.70.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

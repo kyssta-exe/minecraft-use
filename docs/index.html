@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>minecraft-use — AI Agent for Minecraft</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #e6edf3; line-height: 1.6; }
+    .container { max-width: 800px; margin: 0 auto; padding: 4rem 2rem; }
+    h1 { font-size: 3rem; margin-bottom: 0.5rem; }
+    h1 span { color: #58a6ff; }
+    .tagline { font-size: 1.2rem; color: #8b949e; margin-bottom: 2rem; }
+    .badges { margin-bottom: 2rem; }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-right: 8px; }
+    .badge.blue { background: #1f6feb33; color: #58a6ff; }
+    .badge.green { background: #23863633; color: #3fb950; }
+    .badge.orange { background: #9e6a0333; color: #d29922; }
+    pre { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+    code { font-family: 'SF Mono', Consolas, monospace; font-size: 0.9rem; }
+    .inline-code { background: #161b22; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+    a { color: #58a6ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .section { margin: 3rem 0; }
+    .section h2 { font-size: 1.5rem; margin-bottom: 1rem; color: #f0f6fc; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; }
+    .card h3 { color: #58a6ff; margin-bottom: 0.5rem; }
+    .card p { color: #8b949e; font-size: 0.9rem; }
+    footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #30363d; color: #8b949e; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span>minecraft-</span>use</h1>
+    <p class="tagline">AI agent for Minecraft — connect any LLM to any server</p>
+
+    <div class="badges">
+      <span class="badge blue">v0.0.1-beta.1</span>
+      <span class="badge green">MIT License</span>
+      <span class="badge orange">Node.js 18+</span>
+      <span class="badge blue">MC 1.8 — 1.21+</span>
+    </div>
+
+    <pre><code>npm install minecraft-use
+npx minecraft-use start</code></pre>
+
+    <div class="section">
+      <h2>Features</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Token Efficient</h3>
+          <p>~1,000 tokens per decision. State diffing, skill library, confidence engine.</p>
+        </div>
+        <div class="card">
+          <h3>Multi-LLM</h3>
+          <p>Claude, GPT-4o, Ollama, or any OpenAI-compatible API.</p>
+        </div>
+        <div class="card">
+          <h3>Game Chat</h3>
+          <p>Control via <code>!mine diamond_ore</code> or natural language.</p>
+        </div>
+        <div class="card">
+          <h3>MCP Server</h3>
+          <p>Works with Claude Desktop, Hermes, and any MCP client.</p>
+        </div>
+        <div class="card">
+          <h3>Skill Library</h3>
+          <p>SQLite-backed with FTS5 search. Learns from successes.</p>
+        </div>
+        <div class="card">
+          <h3>Persistent Memory</h3>
+          <p>Episodic + semantic memory across sessions.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Quick Example</h2>
+      <pre><code>import { createAgent } from 'minecraft-use';
+
+const agent = await createAgent({
+  server: { host: 'localhost', port: 25565 },
+  llm: { provider: 'anthropic', model: 'claude-sonnet-4-20250514' },
+});
+
+await agent.start();
+await agent.mine('diamond_ore');
+await agent.go(100, 64, 200);
+await agent.build('a small wooden house');
+await agent.stop();</code></pre>
+    </div>
+
+    <div class="section">
+      <h2>Links</h2>
+      <p>
+        <a href="https://github.com/kyssta-exe/minecraft-use">GitHub</a> ·
+        <a href="https://github.com/kyssta-exe/minecraft-use/blob/main/docs/getting-started.md">Getting Started</a> ·
+        <a href="https://github.com/kyssta-exe/minecraft-use/blob/main/docs/configuration.md">Configuration</a> ·
+        <a href="https://github.com/kyssta-exe/minecraft-use/blob/main/docs/actions.md">Actions</a> ·
+        <a href="https://github.com/kyssta-exe/minecraft-use/blob/main/docs/api.md">API Reference</a>
+      </p>
+    </div>
+
+    <footer>
+      <p>Built by <a href="https://github.com/kyssta-exe">Kyssta</a> · MIT License</p>
+    </footer>
+  </div>
+</body>
+</html>

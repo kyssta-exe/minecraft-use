@@ -1,0 +1,36 @@
+# minecraft-use configuration
+server:
+  host: localhost
+  port: 25565
+  username: minecraft-use-bot
+  version: "1.21.4"
+  auth: offline
+
+llm:
+  provider: anthropic
+  model: claude-sonnet-4-20250514
+
+agent:
+  prefix: "!"
+  max_history: 20
+  context_budget: 4096
+  confidence_threshold: 0.85
+  auto_reconnect: true
+  vision_enabled: false
+
+skills:
+  db_path: ./data/skills.db
+  auto_save: true
+
+memory:
+  db_path: ./data/memory.db
+  max_short_term: 50
+  summarize_threshold: 20
+
+mcp:
+  enabled: false
+  port: 8088
+
+dashboard:
+  enabled: true
+  port: 8089

@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.local
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+screenshots/
+logs/
+dist/
+*.tgz
+.DS_Store
+data/
+RESEARCH.md
