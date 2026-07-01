@@ -2,11 +2,13 @@
 
 import { program } from 'commander';
 import { createAgent } from './index.js';
+import { ServerSetup } from './server/setup.js';
+import { PluginTester } from './server/plugin-tester.js';
 import { log, setLogLevel } from './utils/logger.js';
 
 program
   .name('minecraft-use')
-  .description('AI agent for Minecraft — connect any LLM to any server')
+  .description('AI agent for Minecraft — server setup, plugin testing, and automation')
   .version('0.0.1-beta.1');
 
 program
@@ -16,17 +18,72 @@ program
   .option('-s, --server <host>', 'server host')
   .option('-p, --port <port>', 'server port', '25565')
   .option('-u, --username <name>', 'bot username')
-  .option('--auth <type>', 'auth type: offline, microsoft')
   .option('-v, --verbose', 'verbose logging')
   .action(async (opts) => {
     if (opts.verbose) setLogLevel('debug');
     log.info('minecraft-use v0.0.1-beta.1');
     const agent = await createAgent({
       config: opts.config,
-      server: { host: opts.server, port: parseInt(opts.port), auth: opts.auth },
+      server: { host: opts.server, port: parseInt(opts.port) },
       username: opts.username,
     });
     await agent.start();
+  });
+
+program
+  .command('setup')
+  .description('Install and configure a Minecraft server')
+  .option('--dir <path>', 'server directory', '/opt/mc-server')
+  .option('--version <ver>', 'Minecraft version', '1.21.4')
+  .option('--port <port>', 'server port', '25565')
+  .option('--plugins <dir>', 'directory with plugin .jar files')
+  .action(async (opts) => {
+    const setup = new ServerSetup(opts.dir);
+
+    // Install Paper
+    const { dir } = await setup.installPaper(opts.version, parseInt(opts.port));
+
+    // Install plugins
+    if (opts.plugins) {
+      const installed = setup.installPlugins(dir, opts.plugins);
+      log.info(`Installed plugins: ${installed.join(', ')}`);
+    }
+
+    // Start server
+    const { pid } = setup.startServer(dir);
+    log.info(`Server started (PID: ${pid})`);
+    log.info(`Connect: localhost:${opts.port}`);
+  });
+
+program
+  .command('test')
+  .description('Run plugin tests against a server')
+  .requiredOption('-s, --server <host>', 'server host')
+  .option('-p, --port <port>', 'server port', '25565')
+  .option('-c, --config <path>', 'agent config', 'config.yaml')
+  .option('--suite <path>', 'test suite JSON file')
+  .action(async (opts) => {
+    const agent = await createAgent({
+      config: opts.config,
+      server: { host: opts.server, port: parseInt(opts.port) },
+    });
+    await agent.start();
+
+    const tester = new PluginTester(agent);
+
+    if (opts.suite) {
+      const { readFileSync } = await import('fs');
+      const suite = JSON.parse(readFileSync(opts.suite, 'utf-8'));
+      const results = await tester.runSuite(suite);
+      console.log(tester.generateReport(suite.name, results));
+    } else {
+      // Quick smoke test
+      log.info('Running smoke test...');
+      const result = await tester.testCommand('help', null, 5000);
+      log.info(result.passed ? '✅ Server responding' : '❌ Server not responding');
+    }
+
+    await agent.stop();
   });
 
 program
@@ -40,16 +97,16 @@ program
   });
 
 program
-  .command('connect')
-  .description('Connect to a server and run a single command')
-  .argument('<command>', 'command to execute')
-  .option('-c, --config <path>', 'config file path', 'config.yaml')
-  .action(async (command, opts) => {
-    const agent = await createAgent({ config: opts.config });
-    await agent.start();
-    const result = await agent.execute(command);
-    log.info(result);
-    await agent.stop();
+  .command('status')
+  .description('Check server status')
+  .option('--dir <path>', 'server directory', '/opt/mc-server')
+  .action(async (opts) => {
+    const setup = new ServerSetup(opts.dir);
+    const status = setup.getStatus(opts.dir);
+    console.log(`Running: ${status.running ? '✅ Yes' : '❌ No'}`);
+    console.log(`Directory: ${status.dir}`);
+    if (status.pid) console.log(`PID: ${status.pid}`);
+    if (status.logs) console.log(`\nRecent logs:\n${status.logs}`);
   });
 
 program.parse();
